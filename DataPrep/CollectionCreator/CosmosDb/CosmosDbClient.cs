@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
-namespace CollectionCreator
+namespace CollectionCreator.CosmosDb
 {
 
     public class CosmosDbClient

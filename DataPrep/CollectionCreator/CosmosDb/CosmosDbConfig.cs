@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CollectionCreator
+namespace CollectionCreator.CosmosDb
 {
     public class CosmosDbConfig
     {

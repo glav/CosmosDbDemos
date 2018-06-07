@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.CommandLineUtils;
+﻿using CollectionCreator.Config;
+using CollectionCreator.CosmosDb;
+using Microsoft.Azure.Documents;
+using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
@@ -11,9 +14,10 @@ namespace CollectionCreator
 
         static void Main(string[] args)
         {
-            var app = SetupCommandLineOptions();
-            var cosmosConfig = GetCosmosConfig(app);
+            var cosmosConfig = GetCosmosConfig();
             _client = new CosmosDbClient(cosmosConfig);
+
+            var app = CommandLineInitialiser.SetupCommandLineOptions(_client);
 
             app.OnExecute(() =>
             {
@@ -21,10 +25,24 @@ namespace CollectionCreator
 
                 return 0;
             });
-            app.Execute(args);
+            try
+            {
+                app.Execute(args);
+            } catch (AggregateException aex)
+            {
+                aex.Handle((x) => {
+                    var docex = x as DocumentClientException;
+                    if (docex != null && docex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        Console.WriteLine("Warning: [{0}] - Ignoring", docex.StatusCode);
+                        return true;
+                    }
+                    return false;
+                });
+            }
         }
 
-        private static CosmosDbConfig GetCosmosConfig(CommandLineApplication app)
+        private static CosmosDbConfig GetCosmosConfig()
         {
 
             return new CosmosDbConfig(
@@ -39,61 +57,5 @@ namespace CollectionCreator
             };
         }
 
-        private static CommandLineApplication SetupCommandLineOptions()
-        {
-            var app = new CommandLineApplication();
-            app.Name = "CosmosDb Demo Collection Creator";
-            app.Description = "Simple app to create demo collections and also sample data";
-            app.HelpOption("--? | --help | -h | -?");
-
-            app.Command("createsmall", (command) =>
-            {
-                command.OnExecute(() =>
-                {
-                    Console.WriteLine("Creating small collection");
-                    _client.CreateSmallCollectionIfNotExistsAsync().Wait();
-                    Console.WriteLine("Collection created");
-                    return 0;
-                });
-            });
-
-            app.Command("createlarge", (command) =>
-            {
-                command.OnExecute(() =>
-                {
-                    Console.WriteLine("Creating large collection");
-                    _client.CreateLargeCollectionIfNotExistsAsync().Wait();
-                    Console.WriteLine("Collection created");
-                    return 0;
-                });
-            });
-
-            app.Command("deletesmall", (command) =>
-            {
-                command.OnExecute(() =>
-                {
-                    Console.WriteLine("Deleting small collection");
-                    _client.RemoveSmallCollectionAsync().Wait();
-                    Console.WriteLine("Collection deleted");
-                    return 0;
-                });
-            });
-
-            app.Command("deletelarge", (command) =>
-            {
-                command.OnExecute(() =>
-                {
-                    Console.WriteLine("Deleting large collection");
-                    _client.RemoveLargeCollectionAsync().Wait();
-                    Console.WriteLine("Collection deleted");
-                    return 0;
-                });
-            });
-
-            var action = app.Option("--t", "Throughput RU's to be used/applied", CommandOptionType.SingleValue);
-            action.ShortName = AppOptions.Throughput;
-
-            return app;
-        }
     }
 }
