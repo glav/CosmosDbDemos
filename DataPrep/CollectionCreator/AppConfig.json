@@ -5,6 +5,8 @@
   "CosmosDbEndpoint": "https://glavdemo.documents.azure.com:443/",
   "CosmosDbKey": "",
   "SmallThroughput": 400,
-  "LargeThroughput": 20000
+  "LargeThroughput": 20000,
+  "SmallDocumentCount": 3,
+  "LargeDocumentCount":  1000
 
 }

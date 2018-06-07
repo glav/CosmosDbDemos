@@ -15,6 +15,18 @@ namespace CollectionCreator.Config
             app.Description = "Simple app to create demo collections and also sample data";
             app.HelpOption("--? | --help | -h | -?");
 
+            app.Command("createall", (command) =>
+            {
+                command.OnExecute(() =>
+                {
+                    Console.WriteLine("Creating all collections");
+                    client.CreateSmallCollectionIfNotExistsAsync().Wait();
+                    client.CreateLargeCollectionIfNotExistsAsync().Wait();
+                    Console.WriteLine("Collections created");
+                    return 0;
+                });
+            });
+
             app.Command("createsmall", (command) =>
             {
                 command.OnExecute(() =>

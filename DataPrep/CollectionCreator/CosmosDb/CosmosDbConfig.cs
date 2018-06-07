@@ -19,5 +19,8 @@ namespace CollectionCreator.CosmosDb
 
         public int SmallThroughput { get; set; }
         public int LargeThroughput { get; set; }
+
+        public int SmallDocumentCount { get; set; }
+        public int LargeDocumentCount { get; set; }
     }
 }

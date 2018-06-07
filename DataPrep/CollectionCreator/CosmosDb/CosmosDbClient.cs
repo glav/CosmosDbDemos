@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-
+using CollectionCreator.Config;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
@@ -10,6 +10,7 @@ namespace CollectionCreator.CosmosDb
 
     public class CosmosDbClient
     {
+        
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
 
@@ -28,20 +29,37 @@ namespace CollectionCreator.CosmosDb
 
         public async Task RemoveSmallCollectionAsync()
         {
+            Console.WriteLine("Removing small collection");
             await this.documentClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.SmallCollectionId));
         }
         public async Task RemoveLargeCollectionAsync()
         {
+            Console.WriteLine("Removing large collection");
             await this.documentClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId));
         }
 
         public async Task CreateSmallCollectionIfNotExistsAsync()
         {
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
+        }
+
+        public async Task CreateSampleDocuments(string databaseId, string collectionId, int count, bool useGoodPartitionKey)
+        {
+            Console.WriteLine("Creating {0} records", count);
+            var sampleData = SampleDocumentCreator.Generate(count, useGoodPartitionKey);
+            foreach (var d in sampleData)
+            {
+                var uri = UriFactory.CreateDocumentCollectionUri(databaseId, collectionId);
+
+                await CreateDocumentInCollectionAsync<DataDocument>(uri, d);
+            };
         }
         public async Task CreateLargeCollectionIfNotExistsAsync()
         {
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeThroughput);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeDocumentCount,true);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeDocumentCount, false);
         }
         private async Task CreateDocumentCollectionIfNotExistsAsync(string collectionId, int throughput)
         {
@@ -54,7 +72,7 @@ namespace CollectionCreator.CosmosDb
             //if (hostedInCloud)
             //{
             var partitionKeyPaths = new PartitionKeyDefinition();
-            partitionKeyPaths.Paths.Add("/PartitionKey");
+            partitionKeyPaths.Paths.Add("/partitionKey");
             await this.documentClient.CreateDocumentCollectionIfNotExistsAsync(
                     UriFactory.CreateDatabaseUri(this.cosmosConfig.DatabaseId),
                     new DocumentCollection { Id = collectionId, PartitionKey = partitionKeyPaths },

@@ -53,7 +53,9 @@ namespace CollectionCreator
                 Endpoint = AppConfig.CosmosDbEndpoint,
                 Key = AppConfig.CosmosDbKey,
                 SmallThroughput = AppConfig.SmallThroughput,
-                LargeThroughput = AppConfig.LargeThroughput
+                LargeThroughput = AppConfig.LargeThroughput,
+                SmallDocumentCount = AppConfig.SmallDocumentCount,
+                LargeDocumentCount = AppConfig.LargeDocumentCount
             };
         }
 
