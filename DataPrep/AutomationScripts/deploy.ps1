@@ -14,9 +14,6 @@
  .PARAMETER resourceGroupLocation
     Optional, a resource group location. If specified, will try to create a new resource group in this location. If not specified, assumes resource group is existing.
 
- .PARAMETER deploymentName
-    The deployment name.
-
  .PARAMETER templateFilePath
     Optional, path to the template file. Defaults to template.json.
 
@@ -29,18 +26,13 @@ param(
  [string]
  $subscriptionId,
 
- [Parameter(Mandatory=$True)]
  [string]
- $resourceGroupName,
+ $resourceGroupName = "CosmosDbDemo",
 
  [string]
- $resourceGroupLocation,
+ $resourceGroupLocation = "australiaeast",
 
- [Parameter(Mandatory=$True)]
- [string]
- $deploymentName,
-
- [string]
+  [string]
  $templateFilePath = "template.json",
 
  [string]
@@ -67,8 +59,16 @@ Function RegisterRP {
 $ErrorActionPreference = "Stop"
 
 # sign in
-Write-Host "Logging in...";
-Login-AzureRmAccount;
+Try {
+    Get-AzureRmContext
+  } Catch {
+    Write-Host "Logging in...";
+    #Login-AzureRmAccount;
+    if ($_ -like "*Login-AzureRmAccount to login*") {
+      Login-AzureRmAccount
+    }
+  }
+
 
 # select subscription
 Write-Host "Selecting subscription '$subscriptionId'";

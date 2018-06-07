@@ -2,13 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "databaseAccounts_glavdemo_name": {
+        "databaseAccountsName": {
             "defaultValue": null,
             "type": "SecureString"
-        },
-        "databaseAccounts_glavdemo_name_1": {
-            "defaultValue": "glavdemo",
-            "type": "String"
         }
     },
     "variables": {},
@@ -17,7 +13,7 @@
             "comments": "Generalized from resource: '/subscriptions/d6876356-8975-4384-bbec-4be79f7fe030/resourceGroups/CosmosDbDemo/providers/Microsoft.DocumentDB/databaseAccounts/glavdemo'.",
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "kind": "GlobalDocumentDB",
-            "name": "[parameters('databaseAccounts_glavdemo_name_1')]",
+            "name": "[parameters('databaseAccountsName')]",
             "apiVersion": "2015-04-08",
             "location": "Australia East",
             "tags": {
@@ -31,7 +27,7 @@
                     "maxIntervalInSeconds": 5,
                     "maxStalenessPrefix": 100
                 },
-                "name": "[parameters('databaseAccounts_glavdemo_name')]"
+                "name": "[parameters('databaseAccountsName')]"
             },
             "dependsOn": []
         }

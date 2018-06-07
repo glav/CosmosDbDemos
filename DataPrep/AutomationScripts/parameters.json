@@ -2,11 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "databaseAccounts_glavdemo_name": {
-            "value": null
-        },
-        "databaseAccounts_glavdemo_name_1": {
-            "value": null
+        "databaseAccountsName": {
+            "value": "glavdemo"
         }
     }
 }
