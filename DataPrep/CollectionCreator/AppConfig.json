@@ -1,6 +1,10 @@
 ﻿{
   "DatabaseId": "glavdemo",
   "SmallCollectionId": "SmallCollection",
-  "ConnectionString":  ""
+  "LargeCollectionId": "LargeCollection",
+  "CosmosDbEndpoint": "https://glavdemo.documents.azure.com:443/",
+  "CosmosDbKey": "",
+  "SmallThroughput": 400,
+  "LargeThroughput": 20000
 
 }

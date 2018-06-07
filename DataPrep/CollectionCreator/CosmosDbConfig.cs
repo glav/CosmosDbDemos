@@ -6,17 +6,18 @@ namespace CollectionCreator
 {
     public class CosmosDbConfig
     {
-        public CosmosDbConfig(string collectionId, string databaseId)
+        public CosmosDbConfig(string databaseId)
         {
-            this.CollectionId = collectionId;
             this.DatabaseId = databaseId;
         }
         public string DatabaseId { get; set; }
-        public string CollectionId { get; set; }
+        public string SmallCollectionId { get; set; }
+        public string LargeCollectionId { get; set; }
 
         public string Endpoint { get; set; }
         public string Key { get; set; }
 
-        public int Throughput { get; set; }
+        public int SmallThroughput { get; set; }
+        public int LargeThroughput { get; set; }
     }
 }

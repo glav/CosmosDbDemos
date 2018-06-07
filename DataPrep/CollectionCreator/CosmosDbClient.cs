@@ -8,7 +8,7 @@ using Microsoft.Azure.Documents.Client;
 namespace CollectionCreator
 {
 
-    public class CosmosDbClient<T> where T : class
+    public class CosmosDbClient
     {
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
@@ -16,17 +16,34 @@ namespace CollectionCreator
         public CosmosDbClient(CosmosDbConfig cosmosConfig)
         {
             this.cosmosConfig = cosmosConfig;
-            this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key, 
+            this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key,
                 new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
             this.documentClient.OpenAsync();
         }
 
-        public async Task CreateDocumentInCollectionAsync(Uri uri, T document)
+        public async Task CreateDocumentInCollectionAsync<T>(Uri uri, T document) where T : class
         {
             await this.documentClient.UpsertDocumentAsync(uri, document);
         }
 
-        public async Task CreateDocumentCollectionIfNotExistsAsync()
+        public async Task RemoveSmallCollectionAsync()
+        {
+            await this.documentClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.SmallCollectionId));
+        }
+        public async Task RemoveLargeCollectionAsync()
+        {
+            await this.documentClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId));
+        }
+
+        public async Task CreateSmallCollectionIfNotExistsAsync()
+        {
+            await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
+        }
+        public async Task CreateLargeCollectionIfNotExistsAsync()
+        {
+            await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeThroughput);
+        }
+        private async Task CreateDocumentCollectionIfNotExistsAsync(string collectionId, int throughput)
         {
             await this.documentClient.CreateDatabaseIfNotExistsAsync(new Database { Id = this.cosmosConfig.DatabaseId });
             //var hostedInCloud = !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"));
@@ -40,8 +57,8 @@ namespace CollectionCreator
             partitionKeyPaths.Paths.Add("/PartitionKey");
             await this.documentClient.CreateDocumentCollectionIfNotExistsAsync(
                     UriFactory.CreateDatabaseUri(this.cosmosConfig.DatabaseId),
-                    new DocumentCollection { Id = this.cosmosConfig.CollectionId, PartitionKey = partitionKeyPaths },
-                    new RequestOptions { OfferThroughput = this.cosmosConfig.Throughput, ConsistencyLevel = ConsistencyLevel.Eventual });
+                    new DocumentCollection { Id = collectionId, PartitionKey = partitionKeyPaths },
+                    new RequestOptions { OfferThroughput = throughput, ConsistencyLevel = ConsistencyLevel.Eventual });
             //}
             //else
             //{

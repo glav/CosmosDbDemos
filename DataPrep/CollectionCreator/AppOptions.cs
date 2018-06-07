@@ -10,7 +10,7 @@ namespace CollectionCreator
     {
         public const string ResourceGroup = "rg";
         public const string SubscriptionId = "subid";
-        public const string Action = "action";
+        public const string Throughput = "thru";
     }
 
     internal static class AppOptionsExtensions
@@ -24,9 +24,9 @@ namespace CollectionCreator
             return app.Options.First(o => o.ShortName == AppOptions.SubscriptionId);
         }
 
-        public static CommandOption ActionOption(this CommandLineApplication app)
+        public static CommandOption ThroughputOption(this CommandLineApplication app)
         {
-            return app.Options.First(o => o.ShortName == AppOptions.Action);
+            return app.Options.First(o => o.ShortName == AppOptions.Throughput);
         }
     }
 }
