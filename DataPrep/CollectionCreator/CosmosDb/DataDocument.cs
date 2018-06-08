@@ -45,7 +45,7 @@ namespace CollectionCreator.CosmosDb
         {
             "Sydney", "Suburbia", "FreeVille","Woop Woop","Back of Bourke","Outback","The Bush","The Footpath","Somewhere"
         };
-        public static List<DataDocument> Generate(int count, bool useGoodPartitionKey)
+        public static List<DataDocument> Generate(int count, bool useGoodPartitionKey, int startIdCountFrom = 0)
         {
             var data = new List<DataDocument>();
             var rnd = new Random(DateTime.Now.Millisecond);
@@ -53,7 +53,7 @@ namespace CollectionCreator.CosmosDb
             {
                 data.Add(new DataDocument
                 {
-                    id = (cnt + 1).ToString(),
+                    id = (cnt + 1 + startIdCountFrom).ToString(),
                     age = rnd.Next(10, 99),
                     firstName = FirstNames[rnd.Next(0, FirstNames.Length - 1)],
                     lastName = LastNames[rnd.Next(0, LastNames.Length - 1)],

@@ -1,4 +1,5 @@
 ﻿using CollectionCreator.CosmosDb;
+using CollectionCreator.Helpers;
 using Microsoft.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,10 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Creating all collections");
+                    Logger.Write("Creating all collections");
                     client.CreateSmallCollectionIfNotExistsAsync().Wait();
                     client.CreateLargeCollectionIfNotExistsAsync().Wait();
-                    Console.WriteLine("Collections created");
+                    Logger.Write("Collections created");
                     return 0;
                 });
             });
@@ -31,9 +32,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Creating small collection");
                     client.CreateSmallCollectionIfNotExistsAsync().Wait();
-                    Console.WriteLine("Collection created");
                     return 0;
                 });
             });
@@ -42,9 +41,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Creating large collection");
                     client.CreateLargeCollectionIfNotExistsAsync().Wait();
-                    Console.WriteLine("Collection created");
                     return 0;
                 });
             });
@@ -53,9 +50,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Deleting small collection");
                     client.RemoveSmallCollectionAsync().Wait();
-                    Console.WriteLine("Collection deleted");
                     return 0;
                 });
             });
@@ -64,9 +59,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Deleting large collection");
                     client.RemoveLargeCollectionAsync().Wait();
-                    Console.WriteLine("Collection deleted");
                     return 0;
                 });
             });
@@ -75,10 +68,35 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    Console.WriteLine("Deleting all collections");
+                    Logger.Write("Deleting all collections");
                     client.RemoveSmallCollectionAsync().Wait();
                     client.RemoveLargeCollectionAsync().Wait();
-                    Console.WriteLine("Collections deleted");
+                    Logger.Write("Collections deleted");
+                    return 0;
+                });
+            });
+
+            app.Command("run1query",(command) => 
+            {
+                command.OnExecute(() =>
+                {
+                    var total = client.RunQueries(1);
+                    return 0;
+                });
+            });
+            app.Command("run10queries", (command) =>
+            {
+                command.OnExecute(() =>
+                {
+                    var total = client.RunQueries(10);
+                    return 0;
+                });
+            });
+            app.Command("run100queries", (command) =>
+            {
+                command.OnExecute(() =>
+                {
+                    var total = client.RunQueries(10);
                     return 0;
                 });
             });

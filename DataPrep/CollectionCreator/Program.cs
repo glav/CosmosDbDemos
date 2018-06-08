@@ -1,5 +1,6 @@
 ﻿using CollectionCreator.Config;
 using CollectionCreator.CosmosDb;
+using CollectionCreator.Helpers;
 using Microsoft.Azure.Documents;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace CollectionCreator
 
             app.OnExecute(() =>
             {
-                Console.WriteLine("\nCosmosDb Demo Collection Creator");
+                Logger.Write("\nCosmosDb Demo Collection Creator");
 
                 return 0;
             });
@@ -34,7 +35,7 @@ namespace CollectionCreator
                     var docex = x as DocumentClientException;
                     if (docex != null && docex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        Console.WriteLine("Warning: [{0}] - Ignoring", docex.StatusCode);
+                        Logger.Write($"Warning: [{docex.StatusCode}] - Ignoring");
                         return true;
                     }
                     return false;
