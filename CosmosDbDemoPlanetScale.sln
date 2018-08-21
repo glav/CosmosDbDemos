@@ -7,6 +7,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataPrep", "DataPrep", "{AB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CollectionCreator", "DataPrep\CollectionCreator\CollectionCreator.csproj", "{DC119817-1311-4399-B118-9D15B55D0D3E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{BEDCEE46-C145-49D4-8991-7B782838F45C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{9CB1E665-77C1-40CD-B08F-7695BA109B48}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosCommon", "CosmosCommon\CosmosCommon.csproj", "{59B68488-1E9D-440D-B6A2-D1D0BBA8905F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +23,17 @@ Global
 		{DC119817-1311-4399-B118-9D15B55D0D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC119817-1311-4399-B118-9D15B55D0D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC119817-1311-4399-B118-9D15B55D0D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B68488-1E9D-440D-B6A2-D1D0BBA8905F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B68488-1E9D-440D-B6A2-D1D0BBA8905F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B68488-1E9D-440D-B6A2-D1D0BBA8905F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B68488-1E9D-440D-B6A2-D1D0BBA8905F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DC119817-1311-4399-B118-9D15B55D0D3E} = {AB95EF3C-0061-43E1-9B5E-8167B94396F5}
+		{59B68488-1E9D-440D-B6A2-D1D0BBA8905F} = {9CB1E665-77C1-40CD-B08F-7695BA109B48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {972516A9-021B-44CD-8578-712705E0796D}

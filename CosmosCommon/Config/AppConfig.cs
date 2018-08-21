@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CosmosCommon.CosmosDb;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CollectionCreator.Config
+namespace CosmosCommon.Config
 {
     public static class AppConfig
     {
@@ -45,5 +46,23 @@ namespace CollectionCreator.Config
                 return defaultValue;
             }
         }
+
+        public static CosmosDbConfig GetCosmosConfig()
+        {
+
+            return new CosmosDbConfig(
+                AppConfig.DatabaseId)
+            {
+                SmallCollectionId = AppConfig.SmallCollectionId,
+                LargeCollectionId = AppConfig.LargeCollectionId,
+                Endpoint = AppConfig.CosmosDbEndpoint,
+                Key = AppConfig.CosmosDbKey,
+                SmallThroughput = AppConfig.SmallThroughput,
+                LargeThroughput = AppConfig.LargeThroughput,
+                SmallDocumentCount = AppConfig.SmallDocumentCount,
+                LargeDocumentCount = AppConfig.LargeDocumentCount
+            };
+        }
+
     }
 }

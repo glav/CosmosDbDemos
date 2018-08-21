@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CollectionCreator.Helpers
+namespace CosmosCommon.Helpers
 {
     public static class Logger
     {

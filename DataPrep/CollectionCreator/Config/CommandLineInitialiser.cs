@@ -1,5 +1,5 @@
-﻿using CollectionCreator.CosmosDb;
-using CollectionCreator.Helpers;
+﻿using CosmosCommon.CosmosDb;
+using CosmosCommon.Helpers;
 using Microsoft.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace CollectionCreator.Config
 {
     internal static class CommandLineInitialiser
     {
-        public static CommandLineApplication SetupCommandLineOptions(CosmosDbClient client)
+        public static CommandLineApplication SetupCommandLineOptions(DbCollectionCreatorClient client)
         {
             var app = new CommandLineApplication();
             app.Name = "CosmosDb Demo Collection Creator";

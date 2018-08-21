@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using CollectionCreator.Config;
-using CollectionCreator.Helpers;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System.Linq;
+using CosmosCommon.Helpers;
 
-namespace CollectionCreator.CosmosDb
+namespace CosmosCommon.CosmosDb
 {
 
-    public class CosmosDbClient
+    public class DbCollectionCreatorClient
     {
         private readonly AsyncRunner asynRunner = new AsyncRunner();
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
 
-        public CosmosDbClient(CosmosDbConfig cosmosConfig)
+        public DbCollectionCreatorClient(CosmosDbConfig cosmosConfig)
         {
             this.cosmosConfig = cosmosConfig;
             this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key,

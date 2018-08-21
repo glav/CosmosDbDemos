@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CosmosCommon\CosmosCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="AppConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

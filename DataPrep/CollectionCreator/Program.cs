@@ -1,6 +1,7 @@
 ﻿using CollectionCreator.Config;
-using CollectionCreator.CosmosDb;
-using CollectionCreator.Helpers;
+using CosmosCommon.Config;
+using CosmosCommon.CosmosDb;
+using CosmosCommon.Helpers;
 using Microsoft.Azure.Documents;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
@@ -11,12 +12,12 @@ namespace CollectionCreator
 {
     class Program
     {
-        public static CosmosDbClient _client;
+        public static DbCollectionCreatorClient _client;
 
         static void Main(string[] args)
         {
-            var cosmosConfig = GetCosmosConfig();
-            _client = new CosmosDbClient(cosmosConfig);
+            var cosmosConfig = AppConfig.GetCosmosConfig();
+            _client = new DbCollectionCreatorClient(cosmosConfig);
 
             var app = CommandLineInitialiser.SetupCommandLineOptions(_client);
 
@@ -43,22 +44,6 @@ namespace CollectionCreator
             }
         }
 
-        private static CosmosDbConfig GetCosmosConfig()
-        {
-
-            return new CosmosDbConfig(
-                AppConfig.DatabaseId)
-            {
-                SmallCollectionId = AppConfig.SmallCollectionId,
-                LargeCollectionId = AppConfig.LargeCollectionId,
-                Endpoint = AppConfig.CosmosDbEndpoint,
-                Key = AppConfig.CosmosDbKey,
-                SmallThroughput = AppConfig.SmallThroughput,
-                LargeThroughput = AppConfig.LargeThroughput,
-                SmallDocumentCount = AppConfig.SmallDocumentCount,
-                LargeDocumentCount = AppConfig.LargeDocumentCount
-            };
-        }
 
     }
 }

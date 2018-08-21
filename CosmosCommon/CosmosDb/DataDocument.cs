@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CollectionCreator.CosmosDb
+namespace CosmosCommon.CosmosDb
 {
     public class DataDocument
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CollectionCreator.Helpers
+namespace CosmosCommon.Helpers
 {
     public class AsyncRunner
     {
