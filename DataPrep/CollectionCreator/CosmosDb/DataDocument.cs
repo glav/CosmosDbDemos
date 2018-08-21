@@ -7,6 +7,7 @@ namespace CollectionCreator.CosmosDb
     public class DataDocument
     {
         public string id { get; set; }
+        public string appId { get; set; }
         public bool useGoodPartitionKey { get; set; }
         public string partitionKey { get { return useGoodPartitionKey ? Guid.NewGuid().ToString() : "12345"; } }
         public string firstName { get; set; }
@@ -51,9 +52,11 @@ namespace CollectionCreator.CosmosDb
             var rnd = new Random(DateTime.Now.Millisecond);
             for (var cnt = 0; cnt < count; cnt++)
             {
+                var calculatedId = (cnt + 1 + startIdCountFrom).ToString();
                 data.Add(new DataDocument
                 {
-                    id = (cnt + 1 + startIdCountFrom).ToString(),
+                    id = calculatedId,
+                    appId = calculatedId,
                     age = rnd.Next(10, 99),
                     firstName = FirstNames[rnd.Next(0, FirstNames.Length - 1)],
                     lastName = LastNames[rnd.Next(0, LastNames.Length - 1)],
