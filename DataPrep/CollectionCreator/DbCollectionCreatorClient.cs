@@ -5,8 +5,9 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using System.Linq;
 using CosmosCommon.Helpers;
+using CosmosCommon.CosmosDb;
 
-namespace CosmosCommon.CosmosDb
+namespace CollectionCreator
 {
 
     public class DbCollectionCreatorClient

@@ -10,7 +10,7 @@ namespace QueryClient
             var cosmosConfig = AppConfig.GetCosmosConfig();
             int iterationCount;
 
-            if (args.Length == 0 || !int.TryParse(args[0],out iterationCount))
+            if (args.Length == 0 || !int.TryParse(args[0], out iterationCount))
             {
                 iterationCount = 1;
             }

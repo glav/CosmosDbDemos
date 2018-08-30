@@ -18,6 +18,10 @@ namespace CollectionCreator
         {
             var cosmosConfig = AppConfig.GetCosmosConfig();
             _client = new DbCollectionCreatorClient(cosmosConfig);
+            if (string.IsNullOrWhiteSpace(cosmosConfig.Key))
+            {
+                Console.WriteLine("\nWARNING!: No access key defined. This action will probably fail.\n");
+            }
 
             var app = CommandLineInitialiser.SetupCommandLineOptions(_client);
 

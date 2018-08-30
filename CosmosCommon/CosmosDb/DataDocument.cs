@@ -14,6 +14,7 @@ namespace CosmosCommon.CosmosDb
         public string lastName { get; set; }
         public int age { get; set; }
         public Address address { get; set; }
+        public OwnedItem[] ownedItems { get; set; }
     }
 
     public class Address
@@ -22,6 +23,13 @@ namespace CosmosCommon.CosmosDb
         public string suburb { get; set; }
         public string state { get; set; }
         public int postcode { get; set; }
+    }
+
+    public class OwnedItem
+    {
+        public string itemDescription { get; set; }
+        public decimal cost { get; set; }
+        public string category { get; set; }
     }
 
     public static class SampleDocumentCreator
@@ -46,6 +54,15 @@ namespace CosmosCommon.CosmosDb
         {
             "Sydney", "Suburbia", "FreeVille","Woop Woop","Back of Bourke","Outback","The Bush","The Footpath","Somewhere"
         };
+        public readonly static string[] ItemCategories = new string[]
+        {
+            "Bling", "OldClutter", "CoolStuff"
+        };
+        public readonly static string[] ItemDescription = new string[]
+        {
+            "Diamond Ring", "Computer", "Model car", "Phone", "Rubber ducky", "Furry thing", "Clown nose"
+        };
+
         public static List<DataDocument> Generate(int count, bool useGoodPartitionKey, int startIdCountFrom = 0)
         {
             var data = new List<DataDocument>();
@@ -53,6 +70,17 @@ namespace CosmosCommon.CosmosDb
             for (var cnt = 0; cnt < count; cnt++)
             {
                 var calculatedId = (cnt + 1 + startIdCountFrom).ToString();
+                var items = new List<OwnedItem>();
+                var itemLimit = rnd.Next(1, 5);
+                for (var icnt=0; icnt < itemLimit; icnt++)
+                {
+                    items.Add(new OwnedItem
+                    {
+                        category = ItemCategories[rnd.Next(0, ItemCategories.Length - 1)],
+                        itemDescription = ItemDescription[rnd.Next(0, ItemDescription.Length - 1)],
+                        cost = (decimal)(Math.Round(rnd.NextDouble(), 2) * rnd.Next(1, 100))
+                    });
+                }
                 data.Add(new DataDocument
                 {
                     id = calculatedId,
@@ -67,7 +95,8 @@ namespace CosmosCommon.CosmosDb
                         state = States[rnd.Next(0, States.Length - 1)],
                         streetAddress = $"{rnd.Next(1, 50)} {Streets[rnd.Next(0, Streets.Length - 1)]}",
                         suburb = Suburbs[rnd.Next(0, Suburbs.Length - 1)]
-                    }
+                    },
+                    ownedItems = items.ToArray()
     ,
                 });
             }

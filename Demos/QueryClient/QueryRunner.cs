@@ -8,6 +8,8 @@ using CosmosCommon.Helpers;
 using CosmosCommon.CosmosDb;
 using Microsoft.Azure.Documents.Linq;
 using System.Collections.Generic;
+using System.Timers;
+using System.Text;
 
 namespace QueryClient
 {
@@ -23,7 +25,11 @@ namespace QueryClient
             this.cosmosConfig = cosmosConfig;
 
             this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key,
-                new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
+                new ConnectionPolicy {
+                        ConnectionMode = ConnectionMode.Direct,
+                        ConnectionProtocol = Protocol.Tcp,
+                        MaxConnectionLimit = 1000
+                });
             this.documentClient.OpenAsync();
         }
 
@@ -33,21 +39,28 @@ namespace QueryClient
             var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
             var results = new List<DataDocument>();
 
-            var query = this.documentClient.CreateDocumentQuery(uri,
-                "SELECT c.id,c.partitionKey FROM c where contains (c.appId,\"12\") ",
-                    new FeedOptions {
-                                EnableCrossPartitionQuery = true,
-                    //            MaxDegreeOfParallelism = -1
-                    }).AsDocumentQuery();
-
-            while (query.HasMoreResults)
+            using (var query = this.documentClient.CreateDocumentQuery(uri,
+                "SELECT c.id,c.partitionKey FROM c where contains (c.appId,\"1\") ",
+                    new FeedOptions
+                    {
+                        EnableCrossPartitionQuery = true,
+                        MaxDegreeOfParallelism = 1
+                    }).AsDocumentQuery())
             {
-                Console.WriteLine(" > Getting next set of results");
 
-                var nextResults = await query.ExecuteNextAsync<DataDocument>();
+                var watch = new System.Diagnostics.Stopwatch();
+                var consoleBuffer = new StringBuilder();
+                watch.Start();
+                while (query.HasMoreResults)
+                {
+                    var nextResults = await query.ExecuteNextAsync<DataDocument>();
 
-                Console.WriteLine(" > Retrieved {0} results", nextResults.Count);
-                results.AddRange(nextResults);
+                    results.AddRange(nextResults);
+                }
+                watch.Stop();
+
+                Console.WriteLine(consoleBuffer.ToString());
+                Console.WriteLine("Finished querying in {0}:{1}.{2}", watch.Elapsed.Minutes, watch.Elapsed.Seconds, watch.Elapsed.Milliseconds);
             }
             return results.ToList();
         }
