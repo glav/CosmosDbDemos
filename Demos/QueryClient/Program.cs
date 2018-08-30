@@ -18,7 +18,8 @@ namespace QueryClient
             Console.WriteLine($"Running query {iterationCount} times...");
 
             var client = new QueryRunner(cosmosConfig);
-            var results = client.SimpleQueryAsync().Result;
+            //var results = client.SimpleQueryAsync().Result;
+            client.RunQueriesContinuouslyAsync().Wait();
 
         }
     }

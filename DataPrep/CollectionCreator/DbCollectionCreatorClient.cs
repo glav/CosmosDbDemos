@@ -78,8 +78,8 @@ namespace CollectionCreator
             Logger.Write($"Creating large document collection [{this.cosmosConfig.LargeCollectionId}]");
 
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeThroughput);
-            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeDocumentCount, true);
-            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeDocumentCount, false);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount/2), true);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount/2), false);
         }
 
         public int RunQueries(int count)
@@ -95,7 +95,7 @@ namespace CollectionCreator
                 this.asynRunner.AddTaskToRunConcurrently(Task.Run(() =>
                 {
 
-                    var query = this.documentClient.CreateDocumentQuery(uri, "SELECT c.id,c.partitionKey FROM c where contains (c.id,\"12345\") ", new FeedOptions { EnableCrossPartitionQuery = true }).ToList();
+                    var query = this.documentClient.CreateDocumentQuery(uri, "SELECT c.id,c.partitionKey FROM c where contains (c.id,\"12345\") ", new FeedOptions { EnableCrossPartitionQuery = true, MaxDegreeOfParallelism=-1 }).ToList();
                     total += query.Count;
                 }));
            }
