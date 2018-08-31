@@ -19,7 +19,11 @@ namespace QueryClient
         private readonly AsyncRunner asynRunner = new AsyncRunner();
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
+        private int spinnerPos = 0;
+        private string[] spinnerChars = new string[] { "|", "/", "-", "\\", "|", "/", "-", "\\" };
+        private Random rnd = new Random(DateTime.Now.Millisecond);
 
+        #region Setup client in ctor
         public QueryRunner(CosmosDbConfig cosmosConfig)
         {
             this.cosmosConfig = cosmosConfig;
@@ -35,6 +39,7 @@ namespace QueryClient
             this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key,connectionPolicy);
             this.documentClient.OpenAsync();
         }
+        #endregion
 
         public async Task<List<DataDocument>> SimpleQueryResultSetsAsync()
         {
@@ -47,7 +52,7 @@ namespace QueryClient
                     new FeedOptions
                     {
                         EnableCrossPartitionQuery = true,
-                        //MaxDegreeOfParallelism = 1
+                        //MaxDegreeOfParallelism = -1
                     }).AsDocumentQuery())
             {
 
@@ -76,5 +81,51 @@ namespace QueryClient
             return results.ToList();
         }
 
+        public async Task<List<DataDocument>> ContinuousQuery()
+        {
+
+            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
+            var results = new List<DataDocument>();
+            Console.WriteLine("Performing queries:");
+
+            while (true)
+            {
+                var queryText = rnd.Next(1, 9).ToString();
+                using (var query = this.documentClient.CreateDocumentQuery(uri,
+                    "SELECT top 50 c.id,c.partitionKey,c.useGoodPartitionKey " +
+                        $"FROM c where contains (c.appId,'{queryText}') and c.useGoodPartitionKey=true",
+                        new FeedOptions { EnableCrossPartitionQuery = true, MaxDegreeOfParallelism = -1
+                    }).AsDocumentQuery())
+                {
+
+                    while (query.HasMoreResults)
+                    {
+                        var nextResults = await query.ExecuteNextAsync<DataDocument>();
+                        results.AddRange(nextResults);
+
+                    }
+                    #region Console output
+                    SpinProgressMeter(results.Count);
+                    if (Console.KeyAvailable)
+                    {
+                        break;
+                    }
+                    #endregion
+
+                }
+            }
+            return results.ToList();
+        }
+
+        private void SpinProgressMeter(int resultCount)
+        {
+            if (resultCount % 200 != 0)
+                return;
+
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write(spinnerChars[spinnerPos]);
+            spinnerPos++;
+            if (spinnerPos > spinnerChars.Length-1) { spinnerPos = 0; }
+        }
     }
 }
