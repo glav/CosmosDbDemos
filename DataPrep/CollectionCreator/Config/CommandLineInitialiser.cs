@@ -96,7 +96,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    var total = client.RunQueries(10);
+                    var total = client.RunQueries(100);
                     return 0;
                 });
             });
