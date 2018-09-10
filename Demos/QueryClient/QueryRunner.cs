@@ -16,7 +16,6 @@ namespace QueryClient
 
     public class QueryRunner
     {
-        private readonly AsyncRunner asynRunner = new AsyncRunner();
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
         private int spinnerPos = 0;
@@ -52,7 +51,7 @@ namespace QueryClient
                     new FeedOptions
                     {
                         EnableCrossPartitionQuery = true,
-                        //MaxDegreeOfParallelism = -1
+                        MaxDegreeOfParallelism = -1
                     }).AsDocumentQuery())
             {
 

@@ -1,18 +1,17 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
+﻿using CosmosCommon.CosmosDb;
+using CosmosCommon.Helpers;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using CosmosCommon.Helpers;
-using CosmosCommon.CosmosDb;
+using System.Threading.Tasks;
 
 namespace CollectionCreator
 {
 
     public class DbCollectionCreatorClient
     {
-        private readonly AsyncRunner asynRunner = new AsyncRunner();
         private readonly DocumentClient documentClient;
         private readonly CosmosDbConfig cosmosConfig;
 
@@ -68,38 +67,60 @@ namespace CollectionCreator
             {
                 var uri = UriFactory.CreateDocumentCollectionUri(databaseId, collectionId);
 
-                asynRunner.AddTaskToRunConcurrently(CreateDocumentInCollectionAsync<DataDocument>(uri, d));
-                //await CreateDocumentInCollectionAsync<DataDocument>(uri, d);
+                await CreateDocumentInCollectionAsync<DataDocument>(uri, d);
             };
-            await asynRunner.RunAllTasks();
         }
         public async Task CreateLargeCollectionIfNotExistsAsync()
         {
             Logger.Write($"Creating large document collection [{this.cosmosConfig.LargeCollectionId}]");
 
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.LargeCollectionId, this.cosmosConfig.LargeThroughput);
-            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount/2), true);
-            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount/2), false);
+            await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount / 2), true);
+            try
+            {
+                await CreateSampleDocuments(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId, ((int)this.cosmosConfig.LargeDocumentCount / 2), false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: Problem creating records for static partition");
+            }
+            Console.WriteLine("Running some queries to generate metrics");
+            await RunQueriesAsync(100);
         }
 
-        public int RunQueries(int count)
+        public async Task<int> RunQueriesAsync(int count)
         {
             int total = 0;
+            var rnd = new Random(DateTime.Now.Millisecond);
             Logger.Write($"Running query {count} times.");
-            this.asynRunner.ClearTasks();
+            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
             for (var loop = 0; loop < count; loop++)
             {
 
-                var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
-
-                this.asynRunner.AddTaskToRunConcurrently(Task.Run(() =>
+                await Task.Run(() =>
                 {
+                    //sometimes we want to query using the 'bad' or static partition and other times we don't just to generate different looking metrics
+                    var useStaticKey = rnd.Next(0, 10) >= 7;
 
-                    var query = this.documentClient.CreateDocumentQuery(uri, "SELECT c.id,c.partitionKey FROM c where contains (c.id,\"12345\") ", new FeedOptions { EnableCrossPartitionQuery = true, MaxDegreeOfParallelism=-1 }).ToList();
+                    List<dynamic> query;
+                    Console.Write(".");
+                    if (useStaticKey)
+                    {
+                        query = this.documentClient.CreateDocumentQuery(uri, "SELECT c.id,c.partitionKey FROM c where contains (c.id,\"12345\") ",
+                            new FeedOptions { EnableCrossPartitionQuery = true, MaxDegreeOfParallelism = -1 }).ToList();
+                    }
+                    else
+                    {
+                        var searchText = rnd.Next(1, 10);
+                        query = this.documentClient.CreateDocumentQuery(uri, $"SELECT c.id,c.partitionKey FROM c where contains (c.id,\"{searchText}\") ",
+                            new FeedOptions { EnableCrossPartitionQuery = true, MaxDegreeOfParallelism = -1 }).ToList();
+                    }
                     total += query.Count;
-                }));
-           }
-            this.asynRunner.RunAllTasks().Wait();
+
+                });
+            }
+
+            Logger.Write("Queries complete");
             return total;
         }
         private async Task CreateDocumentCollectionIfNotExistsAsync(string collectionId, int throughput)
