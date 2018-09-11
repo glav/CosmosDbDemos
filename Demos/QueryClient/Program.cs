@@ -19,8 +19,8 @@ namespace QueryClient
 
             var client = new QueryRunner(cosmosConfig);
 
-            var results = client.SimpleQueryResultSetsAsync().Result;
-            //var results = client.ContinuousQuery().Result;
+            //var results = client.SimpleQueryResultSetsAsync().Result;
+            var results = client.ContinuousQuery().Result;
 
         }
     }
