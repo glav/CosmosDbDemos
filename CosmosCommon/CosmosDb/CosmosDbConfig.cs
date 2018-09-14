@@ -6,16 +6,20 @@ namespace CosmosCommon.CosmosDb
 {
     public class CosmosDbConfig
     {
-        public CosmosDbConfig(string databaseId)
+        public CosmosDbConfig(string databaseIdPrefix)
         {
-            this.DatabaseId = databaseId;
+            this.DatabaseIdPrefix = databaseIdPrefix;
         }
-        public string DatabaseId { get; set; }
+        public string DatabaseIdSQL { get { return $"{DatabaseIdPrefix}-sql"; } }
+        public string DatabaseIdGRAPH { get { return $"{DatabaseIdPrefix}-graph"; } }
+        public string DatabaseIdPrefix { get; set; }
         public string SmallCollectionId { get; set; }
         public string LargeCollectionId { get; set; }
 
-        public string Endpoint { get; set; }
-        public string Key { get; set; }
+        public string CosmosDbGraphEndpoint { get; set; }
+        public string CosmosDbSqlEndpoint { get; set; }
+        public string KeySql { get; set; }
+        public string KeyGraph { get; set; }
 
         public int SmallThroughput { get; set; }
         public int LargeThroughput { get; set; }

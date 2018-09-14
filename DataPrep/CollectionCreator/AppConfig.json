@@ -1,12 +1,15 @@
 ﻿{
-  "DatabaseId": "glavdemo",
+  "DatabaseIdPrefix": "glavdemo",
   "SmallCollectionId": "SmallCollection",
   "LargeCollectionId": "LargeCollection",
-  "CosmosDbEndpoint": "https://glavdemo.documents.azure.com:443/",
+  "CosmosDbSqlEndpoint": "https://glavdemo-sql.documents.azure.com:443/",
+  "CosmosDbGraphEndpoint": "https://glavdemo-graph.documents.azure.com:443/",
   "CosmosDbKey": "",
+  "CosmosDbSqlKey": "",
+  "CosmosDbGraphKey": "",
   "SmallThroughput": 400,
   "LargeThroughput": 10000,
   "SmallDocumentCount": 3,
-  "LargeDocumentCount":  10000
+  "LargeDocumentCount": 10000
 
 }

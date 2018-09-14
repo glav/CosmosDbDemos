@@ -10,10 +10,10 @@
     "variables": {},
     "resources": [
         {
-            "comments": "Generalized from resource: '/subscriptions/d6876356-8975-4384-bbec-4be79f7fe030/resourceGroups/CosmosDbDemo/providers/Microsoft.DocumentDB/databaseAccounts/glavdemo'.",
+            "comments": "SQL demo database",
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "kind": "GlobalDocumentDB",
-            "name": "[parameters('databaseAccountsName')]",
+            "name": "[concat(parameters('databaseAccountsName'),'-sql')]",
             "apiVersion": "2015-04-08",
             "location": "Australia East",
             "tags": {
@@ -27,7 +27,30 @@
                     "maxIntervalInSeconds": 5,
                     "maxStalenessPrefix": 100
                 },
-                "name": "[parameters('databaseAccountsName')]"
+                "name": "[concat(parameters('databaseAccountsName'),'-sql')]"
+            },
+            "dependsOn": []
+        },
+        {
+            "comments": "Graph Demo database",
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "kind": "GlobalDocumentDB",
+            "name": "[concat(parameters('databaseAccountsName'),'-graph')]",
+            "apiVersion": "2015-04-08",
+            "location": "Australia East",
+            "tags": {
+                "defaultExperience": "Graph"
+            },
+            "scale": null,
+            "properties": {
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session",
+                    "maxIntervalInSeconds": 5,
+                    "maxStalenessPrefix": 100
+                },
+                "name": "[concat(parameters('databaseAccountsName'),'-graph')]"
+                
             },
             "dependsOn": []
         }

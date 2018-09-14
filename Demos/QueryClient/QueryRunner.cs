@@ -35,7 +35,7 @@ namespace QueryClient
             connectionPolicy.PreferredLocations.Add(LocationNames.AustraliaEast);
             connectionPolicy.PreferredLocations.Add(LocationNames.AustraliaSoutheast);
 
-            this.documentClient = new DocumentClient(new Uri(cosmosConfig.Endpoint), cosmosConfig.Key,connectionPolicy);
+            this.documentClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbSqlEndpoint), cosmosConfig.DatabaseIdSQL,connectionPolicy);
             this.documentClient.OpenAsync();
         }
         #endregion
@@ -43,7 +43,7 @@ namespace QueryClient
         public async Task<List<DataDocument>> SimpleQueryResultSetsAsync()
         {
 
-            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
+            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.LargeCollectionId);
             var results = new List<DataDocument>();
 
             using (var query = this.documentClient.CreateDocumentQuery(uri,
@@ -83,7 +83,7 @@ namespace QueryClient
         public async Task<List<DataDocument>> ContinuousQuery()
         {
 
-            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseId, this.cosmosConfig.LargeCollectionId);
+            var uri = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.LargeCollectionId);
             var results = new List<DataDocument>();
             Console.WriteLine("Performing queries:");
 
