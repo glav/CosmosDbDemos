@@ -36,6 +36,7 @@ namespace CollectionCreator
         {
             Logger.Write("Removing small collection");
             await this.documentSqlClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId));
+            await this.documentGraphClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId));
         }
         public async Task RemoveLargeCollectionAsync()
         {
