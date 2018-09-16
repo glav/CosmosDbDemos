@@ -35,7 +35,7 @@ namespace QueryClient
             connectionPolicy.PreferredLocations.Add(LocationNames.AustraliaEast);
             connectionPolicy.PreferredLocations.Add(LocationNames.AustraliaSoutheast);
 
-            this.documentClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbSqlEndpoint), cosmosConfig.DatabaseIdSQL,connectionPolicy);
+            this.documentClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbSqlEndpoint), cosmosConfig.KeySql, connectionPolicy);
             this.documentClient.OpenAsync();
         }
         #endregion

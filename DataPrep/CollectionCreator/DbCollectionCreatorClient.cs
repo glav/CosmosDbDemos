@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Graphs;
+using Microsoft.Azure.Documents.Linq;
+using Newtonsoft.Json;
 
 namespace CollectionCreator
 {
@@ -15,7 +18,17 @@ namespace CollectionCreator
         private readonly DocumentClient documentSqlClient;
         private readonly DocumentClient documentGraphClient;
         private readonly CosmosDbConfig cosmosConfig;
-
+        private static Dictionary<string, string> gremlinQueries = new Dictionary<string, string>
+        {
+            { "AddVertex 1",    "g.addV('person').property('id', 'thomas').property('firstName', 'Thomas').property('age', 44).property('partitionKey','12345')" },
+            { "AddVertex 2",    "g.addV('person').property('id', 'mary').property('firstName', 'Mary').property('lastName', 'Andersen').property('age', 39).property('partitionKey','12345')" },
+            { "AddVertex 3",    "g.addV('person').property('id', 'ben').property('firstName', 'Ben').property('lastName', 'Miller').property('partitionKey','12345')" },
+            { "AddVertex 4",    "g.addV('person').property('id', 'robin').property('firstName', 'Robin').property('lastName', 'Wakefield').property('partitionKey','12345')" },
+            { "AddEdge 1",      "g.V('thomas').addE('knows').to(g.V('mary'))" },
+            { "AddEdge 2",      "g.V('thomas').addE('knows').to(g.V('ben'))" },
+            { "AddEdge 3",      "g.V('ben').addE('knows').to(g.V('robin'))" },
+            { "UpdateVertex",   "g.V('thomas').property('age', 44)" }
+        };
         public DbCollectionCreatorClient(CosmosDbConfig cosmosConfig)
         {
             this.cosmosConfig = cosmosConfig;
@@ -50,13 +63,14 @@ namespace CollectionCreator
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
             await CreateSampleDocuments(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
+            await CreateSampleGraphDocuments();
             //await CreateSampleDocuments(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
         }
 
-        public int GetRecordCount(string collectionId)
+        public int GetRecordCount(string dbId, string collectionId)
         {
             Logger.Write("Checking for existing records...");
-            var collectionLink = UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, collectionId);
+            var collectionLink = UriFactory.CreateDocumentCollectionUri(dbId, collectionId);
             var query = this.documentSqlClient.CreateDocumentQuery(collectionLink, "SELECT VALUE COUNT(1) FROM c").ToList();
             var cnt = (int)query.First();
             Logger.Write($"Current record count: {cnt}");
@@ -64,10 +78,45 @@ namespace CollectionCreator
 
         }
 
+        public async Task CreateSampleGraphDocuments()
+        {
+            var recCnt = GetRecordCount(this.cosmosConfig.DatabaseIdGRAPH,this.cosmosConfig.SmallCollectionId);
+            if (recCnt > 0)
+            {
+                Logger.Write("Records already exist, skipping graph data creation");
+                return;
+            }
+
+            Logger.Write($"Creating {this.cosmosConfig.SmallDocumentCount} graph records");
+            DocumentCollection graph = await this.documentGraphClient.CreateDocumentCollectionIfNotExistsAsync(
+               UriFactory.CreateDatabaseUri(this.cosmosConfig.DatabaseIdGRAPH),
+               new DocumentCollection { Id = this.cosmosConfig.SmallCollectionId },
+               new RequestOptions { OfferThroughput = 400 });
+
+            foreach (KeyValuePair<string, string> gremlinQuery in gremlinQueries)
+            {
+                Console.WriteLine($"Running {gremlinQuery.Key}: {gremlinQuery.Value}");
+
+                // The CreateGremlinQuery method extensions allow you to execute Gremlin queries and iterate
+                // results asychronously
+                IDocumentQuery<dynamic> query = this.documentGraphClient.CreateGremlinQuery<dynamic>(graph, gremlinQuery.Value, 
+                    new FeedOptions { PartitionKey = new PartitionKey("12345") });
+                while (query.HasMoreResults)
+                {
+                    foreach (dynamic result in await query.ExecuteNextAsync())
+                    {
+                        Console.WriteLine($"\t {JsonConvert.SerializeObject(result)}");
+                    }
+                }
+
+                Console.WriteLine();
+            }
+        }
+
         public async Task CreateSampleDocuments(string databaseId, string collectionId, int count, bool useGoodPartitionKey)
         {
             Logger.Write($"Creating {count} records");
-            var recCnt = GetRecordCount(collectionId);
+            var recCnt = GetRecordCount(databaseId, collectionId);
 
             var sampleData = SampleDocumentCreator.Generate(count, useGoodPartitionKey, recCnt);
             foreach (var d in sampleData)
