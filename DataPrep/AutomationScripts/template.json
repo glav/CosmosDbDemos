@@ -31,28 +31,37 @@
             },
             "dependsOn": []
         },
-        {
-            "comments": "Graph Demo database",
-            "type": "Microsoft.DocumentDB/databaseAccounts",
-            "kind": "GlobalDocumentDB",
-            "name": "[concat(parameters('databaseAccountsName'),'-graph')]",
+		{
+			"comments": "Graph Demo database",
             "apiVersion": "2015-04-08",
-            "location": "Australia East",
-            "tags": {
-                "defaultExperience": "Graph"
-            },
-            "scale": null,
+            "kind": "GlobalDocumentDB",
+            "type": "Microsoft.DocumentDb/databaseAccounts",
+            "name": "[concat(parameters('databaseAccountsName'),'-graph')]",
+             "location": "Australia East",
+			  "scale": null,
             "properties": {
                 "databaseAccountOfferType": "Standard",
-                "consistencyPolicy": {
-                    "defaultConsistencyLevel": "Session",
-                    "maxIntervalInSeconds": 5,
-                    "maxStalenessPrefix": 100
-                },
-                "name": "[concat(parameters('databaseAccountsName'),'-graph')]"
-                
+                "locations": [
+                    {
+                        "id": "[concat(parameters('databaseAccountsName'), '-aueast')]",
+                        "failoverPriority": 0,
+                        "locationName": "Australia East"
+                    }
+                ],
+                "capabilities": [
+                    {
+                        "name": "EnableGremlin"
+                    }
+                ],
+                "isVirtualNetworkFilterEnabled": false,
+                "enableMultipleWriteLocations": false,
+                "virtualNetworkRules": [],
+                "dependsOn": []
             },
-            "dependsOn": []
+            "tags": {
+                "defaultExperience": "Graph"
+            }
         }
+
     ]
 }

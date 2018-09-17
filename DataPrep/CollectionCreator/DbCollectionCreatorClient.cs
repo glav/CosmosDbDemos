@@ -63,8 +63,9 @@ namespace CollectionCreator
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
             await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
             await CreateSampleDocuments(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
+
+            // This creates the data BUT the portal data explorer has an error when querying ... so will leave out and manually create
             await CreateSampleGraphDocuments();
-            //await CreateSampleDocuments(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
         }
 
         public int GetRecordCount(string dbId, string collectionId)
@@ -80,36 +81,43 @@ namespace CollectionCreator
 
         public async Task CreateSampleGraphDocuments()
         {
-            var recCnt = GetRecordCount(this.cosmosConfig.DatabaseIdGRAPH,this.cosmosConfig.SmallCollectionId);
-            if (recCnt > 0)
+            // this falls over for some reason.
+            //var recCnt = GetRecordCount(this.cosmosConfig.DatabaseIdGRAPH,this.cosmosConfig.SmallCollectionId);
+            //if (recCnt > 0)
+            //{
+            //    Logger.Write("Records already exist, skipping graph data creation");
+            //    return;
+            //}
+
+            try
             {
-                Logger.Write("Records already exist, skipping graph data creation");
-                return;
-            }
+                Logger.Write($"Creating {this.cosmosConfig.SmallDocumentCount} graph records");
+                DocumentCollection graph = await this.documentGraphClient.CreateDocumentCollectionIfNotExistsAsync(
+                   UriFactory.CreateDatabaseUri(this.cosmosConfig.DatabaseIdGRAPH),
+                   new DocumentCollection { Id = this.cosmosConfig.SmallCollectionId },
+                   new RequestOptions { OfferThroughput = 400 });
 
-            Logger.Write($"Creating {this.cosmosConfig.SmallDocumentCount} graph records");
-            DocumentCollection graph = await this.documentGraphClient.CreateDocumentCollectionIfNotExistsAsync(
-               UriFactory.CreateDatabaseUri(this.cosmosConfig.DatabaseIdGRAPH),
-               new DocumentCollection { Id = this.cosmosConfig.SmallCollectionId },
-               new RequestOptions { OfferThroughput = 400 });
-
-            foreach (KeyValuePair<string, string> gremlinQuery in gremlinQueries)
-            {
-                Console.WriteLine($"Running {gremlinQuery.Key}: {gremlinQuery.Value}");
-
-                // The CreateGremlinQuery method extensions allow you to execute Gremlin queries and iterate
-                // results asychronously
-                IDocumentQuery<dynamic> query = this.documentGraphClient.CreateGremlinQuery<dynamic>(graph, gremlinQuery.Value, 
-                    new FeedOptions { PartitionKey = new PartitionKey("12345") });
-                while (query.HasMoreResults)
+                foreach (KeyValuePair<string, string> gremlinQuery in gremlinQueries)
                 {
-                    foreach (dynamic result in await query.ExecuteNextAsync())
-                    {
-                        Console.WriteLine($"\t {JsonConvert.SerializeObject(result)}");
-                    }
-                }
+                    Console.WriteLine($"Running {gremlinQuery.Key}: {gremlinQuery.Value}");
 
-                Console.WriteLine();
+                    // The CreateGremlinQuery method extensions allow you to execute Gremlin queries and iterate
+                    // results asychronously
+                    IDocumentQuery<dynamic> query = this.documentGraphClient.CreateGremlinQuery<dynamic>(graph, gremlinQuery.Value,
+                        new FeedOptions { PartitionKey = new PartitionKey("12345") });
+                    while (query.HasMoreResults)
+                    {
+                        foreach (dynamic result in await query.ExecuteNextAsync())
+                        {
+                            Console.WriteLine($"\t {JsonConvert.SerializeObject(result)}");
+                        }
+                    }
+
+                    Console.WriteLine();
+                }
+            } catch (Exception ex)
+            {
+                Logger.Write($"Error: {ex.Message} - ignoring");
             }
         }
 
