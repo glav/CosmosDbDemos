@@ -80,7 +80,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    var total = client.RunQueriesAsync(1);
+                    client.RunQueriesAsync(1).Wait();
                     return 0;
                 });
             });
@@ -88,7 +88,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    var total = client.RunQueriesAsync(10);
+                    client.RunQueriesAsync(10).Wait();
                     return 0;
                 });
             });
@@ -96,7 +96,7 @@ namespace CollectionCreator.Config
             {
                 command.OnExecute(() =>
                 {
-                    var total = client.RunQueriesAsync(100);
+                    client.RunQueriesAsync(100).Wait();
                     return 0;
                 });
             });

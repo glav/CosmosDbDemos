@@ -82,12 +82,12 @@ namespace CollectionCreator
         public async Task CreateSampleGraphDocuments()
         {
             // this falls over for some reason.
-            //var recCnt = GetRecordCount(this.cosmosConfig.DatabaseIdGRAPH,this.cosmosConfig.SmallCollectionId);
-            //if (recCnt > 0)
-            //{
-            //    Logger.Write("Records already exist, skipping graph data creation");
-            //    return;
-            //}
+            var recCnt = GetRecordCount(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId);
+            if (recCnt > 3)
+            {
+                Logger.Write("Records already exist, skipping graph data creation");
+                return;
+            }
 
             try
             {
