@@ -27,7 +27,6 @@ namespace CosmosCommon.Config
         public static string LargeCollectionId { get { return Values["LargeCollectionId"]; } }
         public static string CosmosDbSqlEndpoint { get { return Values["CosmosDbSqlEndpoint"]; } }
         public static string CosmosDbGraphEndpoint { get { return Values["CosmosDbGraphEndpoint"]; } }
-        public static string CosmosDbKey { get { return Values["CosmosDbKey"]; } }
         public static string CosmosDbSqlKey { get { return Values["CosmosDbSqlKey"]; } }
         public static string CosmosDbGraphKey { get { return Values["CosmosDbGraphKey"]; } }
         public static int SmallThroughput { get { return GetSafeInt("SmallThroughput", 400); } }
