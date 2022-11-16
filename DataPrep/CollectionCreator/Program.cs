@@ -6,6 +6,7 @@ using Microsoft.Azure.Documents;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace CollectionCreator
@@ -46,6 +47,20 @@ namespace CollectionCreator
                     return false;
                 });
             }
+        }
+
+         static IConfigurationRoot LoadAppSettings()
+        {
+			var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            var appConfig = new ConfigurationBuilder()
+				.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environmentName}.json", true, true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            return appConfig;
         }
 
 

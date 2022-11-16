@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RuntimeIdentifiers>win10-x64;ubuntu.16.10-x64</RuntimeIdentifiers>
+    <TargetFramework>net7.0</TargetFramework>
     <UserSecretsId>CollectionCreator-333B29A2-5D65-4751-A8E2-1844B760C1E6</UserSecretsId>
   </PropertyGroup>
 

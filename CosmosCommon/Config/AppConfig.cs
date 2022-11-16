@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace CosmosCommon.Config
@@ -13,6 +14,7 @@ namespace CosmosCommon.Config
         {
             ConfigurationBuilder configBuilder = new ConfigurationBuilder();
             configBuilder.AddJsonFile("AppConfig.json");
+            configBuilder.AddJsonFile("AppConfig.local.json",true);
             if (Environment.GetEnvironmentVariable("BuildConfiguration") == "development")
             {
                 configBuilder.AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly());
