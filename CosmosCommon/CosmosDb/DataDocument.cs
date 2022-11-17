@@ -15,6 +15,7 @@ namespace CosmosCommon.CosmosDb
         public int age { get; set; }
         public Address address { get; set; }
         public OwnedItem[] ownedItems { get; set; }
+        public DateTime creationTime {get; set;}
     }
 
     public class Address
@@ -96,7 +97,8 @@ namespace CosmosCommon.CosmosDb
                         streetAddress = $"{rnd.Next(1, 50)} {Streets[rnd.Next(0, Streets.Length - 1)]}",
                         suburb = Suburbs[rnd.Next(0, Suburbs.Length - 1)]
                     },
-                    ownedItems = items.ToArray()
+                    ownedItems = items.ToArray(),
+                    creationTime = DateTime.UtcNow
     ,
                 });
             }
