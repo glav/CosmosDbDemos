@@ -32,12 +32,19 @@ namespace CollectionCreator
         public DbCollectionCreatorClient(CosmosDbConfig cosmosConfig)
         {
             this.cosmosConfig = cosmosConfig;
-            this.documentSqlClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbSqlEndpoint), cosmosConfig.KeySql,
-                new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
-            this.documentGraphClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbGraphEndpoint), cosmosConfig.KeyGraph,
-                new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
-            this.documentSqlClient.OpenAsync();
-            this.documentGraphClient.OpenAsync();
+            if (!string.IsNullOrWhiteSpace(this.cosmosConfig.KeySql))
+            {
+                this.documentSqlClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbSqlEndpoint), cosmosConfig.KeySql,
+                    new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
+                this.documentSqlClient.OpenAsync();
+            }
+            if (!string.IsNullOrWhiteSpace(this.cosmosConfig.KeyGraph))
+            {
+                this.documentGraphClient = new DocumentClient(new Uri(cosmosConfig.CosmosDbGraphEndpoint), cosmosConfig.KeyGraph,
+                    new ConnectionPolicy { ConnectionMode = ConnectionMode.Direct, ConnectionProtocol = Protocol.Tcp, MaxConnectionLimit = 1000 });
+
+                this.documentGraphClient.OpenAsync();
+            }
         }
 
         public async Task CreateDocumentInCollectionAsync<T>(Uri uri, T document) where T : class
@@ -48,20 +55,35 @@ namespace CollectionCreator
         public async Task RemoveSmallCollectionAsync()
         {
             Logger.Write("Removing small collection");
+            if (this.documentSqlClient != null)
+            {
             await this.documentSqlClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId));
+            }
+            if (this.documentGraphClient != null)
+            {
             await this.documentGraphClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId));
+            }
         }
         public async Task RemoveLargeCollectionAsync()
         {
             Logger.Write("Removing large collection");
+            if (this.documentSqlClient != null)
+            {
             await this.documentSqlClient.DeleteDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.LargeCollectionId));
+            }
         }
 
         public async Task CreateSmallCollectionIfNotExistsAsync()
         {
             Logger.Write($"Creating small document collection [{this.cosmosConfig.SmallCollectionId}]");
-            await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
-            await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
+            if (!string.IsNullOrWhiteSpace(this.cosmosConfig.KeySql))
+            {
+                await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
+            }
+            if (!string.IsNullOrWhiteSpace(this.cosmosConfig.KeyGraph))
+            {
+                await CreateDocumentCollectionIfNotExistsAsync(this.cosmosConfig.DatabaseIdGRAPH, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallThroughput);
+            }
             await CreateSampleDocuments(this.cosmosConfig.DatabaseIdSQL, this.cosmosConfig.SmallCollectionId, this.cosmosConfig.SmallDocumentCount, true);
 
             // This creates the data BUT the portal data explorer has an error when querying ... so will leave out and manually create
@@ -70,6 +92,10 @@ namespace CollectionCreator
 
         public int GetRecordCount(string dbId, string collectionId)
         {
+            if (this.documentSqlClient == null)
+            {
+                return 0;
+            }
             Logger.Write("Checking for existing records...");
             var collectionLink = UriFactory.CreateDocumentCollectionUri(dbId, collectionId);
             var query = this.documentSqlClient.CreateDocumentQuery(collectionLink, "SELECT VALUE COUNT(1) FROM c").ToList();
@@ -89,6 +115,10 @@ namespace CollectionCreator
                 return;
             }
 
+            if (this.documentGraphClient == null)
+            {
+                return;
+            }
             try
             {
                 Logger.Write($"Creating {this.cosmosConfig.SmallDocumentCount} graph records");
@@ -115,7 +145,8 @@ namespace CollectionCreator
 
                     Console.WriteLine();
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Logger.Write($"Error: {ex.Message} - ignoring");
             }
@@ -154,6 +185,10 @@ namespace CollectionCreator
 
         public async Task<int> RunQueriesAsync(int count)
         {
+            if (this.documentSqlClient == null)
+            {
+                return 0;
+            }
             int total = 0;
             var rnd = new Random(DateTime.Now.Millisecond);
             Logger.Write($"Running query {count} times.");
@@ -190,6 +225,10 @@ namespace CollectionCreator
         private async Task CreateDocumentCollectionIfNotExistsAsync(string databaseId, string collectionId, int throughput)
         {
             var client = databaseId == this.cosmosConfig.DatabaseIdSQL ? this.documentSqlClient : this.documentGraphClient;
+            if (client == null)
+            {
+                return;
+            }
             await client.CreateDatabaseIfNotExistsAsync(new Database { Id = databaseId });
 
             var partitionKeyPaths = new PartitionKeyDefinition();
