@@ -53,20 +53,5 @@ namespace CollectionCreator
             }
         }
 
-         static IConfigurationRoot LoadAppSettings()
-        {
-			var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-            var appConfig = new ConfigurationBuilder()
-				.SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environmentName}.json", true, true)
-                .AddEnvironmentVariables()
-                .Build();
-
-            return appConfig;
-        }
-
-
     }
 }
